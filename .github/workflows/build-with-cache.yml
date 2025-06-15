@@ -7,7 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.event_name = 'push'
     steps:
     - name: checkout code
       uses: actions/checkout@v4
@@ -26,7 +25,14 @@ jobs:
         cache: 'npm'
     - name: run build
       run: npm ci
-    - run: npm run build --if-present    
+    - run: npm run build --if-present
+    - name: Test
+      id: test
+      run: ./test
+      continue-on-error: true
+    - name: Run if test failed
+      if: step.test.outcome == 'failure'
+      run: echo "Test failure!"
     - name: Save Cache    
       if: steps.cache.outputs.cache-hit != 'true'
       uses: actions/cache@v4.2.3
